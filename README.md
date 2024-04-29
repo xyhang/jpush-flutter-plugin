@@ -1,6 +1,6 @@
 [![QQ Group](https://img.shields.io/badge/QQ%20Group-862401307-red.svg)]()
 # JPush Flutter Plugin
-> flutter 2.0 请切换至 dev-2.x 分支。
+> flutter 3.0 请切换至 dev-3.x 分支。
 ### 安装
 
 在工程 pubspec.yaml 中加入 dependencies
@@ -12,11 +12,11 @@ dependencies:
   jpush_flutter:
     git:
       url: git://github.com/jpush/jpush-flutter-plugin.git
-      ref: master
+      ref: dev-3.x
       
 // pub 集成
 dependencies:
-  jpush_flutter: 2.1.4
+  jpush_flutter: 3.0.0
 ```
 
 ### 配置
@@ -31,20 +31,13 @@ android: {
   defaultConfig {
     applicationId "替换成自己应用 ID"
     ...
-    ndk {
-	//选择要添加的对应 cpu 类型的 .so 库。
-	abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64', 'mips', 'mips64', 'arm64-v8a',        
-    }
-
     manifestPlaceholders = [
         JPUSH_PKGNAME : applicationId,
         JPUSH_APPKEY : "appkey", // NOTE: JPush 上注册的包名对应的 Appkey.
         JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
     ]
   }    
-}
 ```
-
 ##### iOS:
 
 - 在 xcode8 之后需要点开推送选项： TARGETS -> Capabilities -> Push Notification 设为 on 状态

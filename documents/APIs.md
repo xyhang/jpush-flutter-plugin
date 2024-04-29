@@ -4,8 +4,10 @@
 - [setup](#setup)
 - [getRegistrationID](#getregistrationid)
 - [stopPush](#stoppush)
+- [setChannelAndSound](#setChannelAndSound)
 - [resumePush](#resumepush)
 - [setAlias](#setalias)
+- [getAlias](#getAlias)
 - [deleteAlias](#deletealias)
 - [addTags](#addtags)
 - [deleteTags](#deletetags)
@@ -15,11 +17,14 @@
 - [sendLocalNotification](#sendlocalnotification)
 - [clearAllNotifications](#clearallnotifications)
 
+
 [iOS Only]()
 
 - [applyPushAuthority](#applypushauthority)
 - [setBadge](#setbadge)
 - [getLaunchAppNotification](#getlaunchappnotification)
+- [pageEnterTo](#pageEnterTo)
+- [pageLeave](#pageLeave)
 
 **注意：addEventHandler 方法建议放到 setup 之前，其他方法需要在 setup 方法之后调用，**
 
@@ -42,6 +47,9 @@ jpush.addEventHandler(
       onReceiveMessage: (Map<String, dynamic> message) async {
         print("flutter onReceiveMessage: $message");
       },
+      onConnected: (Map<String, dynamic> message) async {
+        print("flutter onConnected: $message");
+      },
   );
 ```
 
@@ -53,6 +61,7 @@ jpush.addEventHandler(
 - 将缓存的事件下发到 dart 环境中。
 
 **注意：** 插件版本 >= 0.0.8 android 端支持在 setup 方法中动态设置 channel，动态设置的 channel 优先级比 manifestPlaceholders 中的 JPUSH_CHANNEL 优先级要高。
+
 ```dart
 JPush jpush = new JPush();
 jpush.setup(
@@ -61,6 +70,15 @@ jpush.setup(
       production: false,
       debug: false, // 设置是否打印 debug 日志
     );
+```
+
+* iOS使用推送功能，需要调用申请通知权限的方法，详情见 [applyPushAuthority](#applyPushAuthority)。
+
+```
+jpush.applyPushAuthority(new NotificationSettingsIOS(
+      sound: true,
+      alert: true,
+      badge: true));
 ```
 
 #### getRegistrationID
@@ -80,6 +98,27 @@ jpush.getRegistrationID().then((rid) { });
 JPush jpush = new JPush();
 jpush.stopPush();
 ```
+
+
+####  setChannelAndSound
+动态配置 channel 、channel id 及sound，优先级比 AndroidManifest 里配置的高
+备注：channel、channel id为必须参数，否则接口调用失败。sound 可选
+
+#### 参数说明
+- Object
+
+|参数名称|参数类型|参数说明|
+|:-----:|:----:|:-----:|
+|channel|string|希望配置的 channel|
+|channel_id|string|希望配置的 channel id|
+|sound|string|希望配置的 sound(铃声名称，只有铃声名称即可，如AA.mp3,填写AA )|
+
+#### 示例
+```dart
+JPush jpush = new JPush();
+jpush.setChannelAndSound();
+```
+
 
 #### resumePush
 
@@ -107,7 +146,14 @@ jpush.setAlias("your alias").then((map) { });
 JPush jpush = new JPush();
 jpush.deleteAlias().then((map) {})
 ```
+#### getAlias
 
+获取当前 alias 列表。
+
+```
+JPush jpush = new JPush();
+jpush.getAlias().then((map) { });
+```
 #### addTags
 
 在原来的 Tags 列表上添加指定 tags。
@@ -182,7 +228,6 @@ JPush jpush = new JPush();
 jpush.clearAllNotifications();
 ```
 
-**iOS Only**
 #### applyPushAuthority
 
 申请推送权限，注意这个方法只会向用户弹出一次推送权限请求（如果用户不同意，之后只能用户到设置页面里面勾选相应权限），需要开发者选择合适的时机调用。
@@ -197,9 +242,9 @@ jpush.applyPushAuthority(new NotificationSettingsIOS(
       badge: true));
 ```
 
+**iOS Only**
+
 #### setBadge
-
-
 
 设置应用 badge 值，该方法还会同步 JPush 服务器的的 badge 值，JPush 服务器的 badge 值用于推送 badge 自动 +1 时会用到。
 
@@ -215,5 +260,23 @@ jpush.setBadge(66).then((map) {});
 ```dart
 JPush jpush = new JPush();
 jpush.getLaunchAppNotification().then((map) {});
+```
+
+### pageEnterTo
+
+进入页面，应用内消息功能需要配置该接口，请与pageLeave函数配套使用
+
+```dart
+JPush jpush = new JPush();
+jpush.pageEnterTo("页面名");
+```
+
+### pageLeave
+
+离开页面，应用内消息功能需要配置该接口，请与pageEnterTo函数配套使用
+
+```dart
+JPush jpush = new JPush();
+jpush.pageLeave("页面名");
 ```
 

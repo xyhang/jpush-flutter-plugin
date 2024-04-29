@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:platform/platform.dart';
+import 'dart:io' show Platform;
 
 typedef Future<dynamic> EventHandler(Map<String, dynamic> event);
 
@@ -11,21 +11,21 @@ class JPush {
   factory JPush() => _instance;
 
   final MethodChannel _channel;
-  final Platform _platform;
 
   @visibleForTesting
-  JPush.private(MethodChannel channel, Platform platform)
-      : _channel = channel,
-        _platform = platform;
+  JPush.private(MethodChannel channel) : _channel = channel;
 
   static final JPush _instance =
-      new JPush.private(const MethodChannel('jpush'), const LocalPlatform());
+      new JPush.private(const MethodChannel('jpush'));
 
   EventHandler? _onReceiveNotification;
   EventHandler? _onOpenNotification;
   EventHandler? _onReceiveMessage;
   EventHandler? _onReceiveNotificationAuthorization;
-
+  EventHandler? _onNotifyMessageUnShow;
+  EventHandler? _onConnected;
+  EventHandler? _onInAppMessageClick;
+  EventHandler? _onInAppMessageShow;
   void setup({
     String appKey = '',
     bool production = false,
@@ -42,8 +42,48 @@ class JPush {
     });
   }
 
+  void setChannelAndSound({
+    String channel = '',
+    String channelID = '',
+    String sound = '',
+  }) {
+    if (Platform.isIOS) {
+      return;
+    }
+    print(flutter_log + "setChannelAndSound:");
+
+    _channel.invokeMethod('setChannelAndSound',
+        {'channel': channel, 'channel_id': channelID, 'sound': sound});
+  }
+
+  //APP活跃在前台时是否展示通知
+  void setUnShowAtTheForeground({bool unShow = false}) {
+    print(flutter_log + "setUnShowAtTheForeground:");
+    _channel.invokeMethod('setUnShowAtTheForeground', {'UnShow': unShow});
+  }
+
   void setWakeEnable({bool enable = false}) {
     _channel.invokeMethod('setWakeEnable', {'enable': enable});
+  }
+
+  void enableAutoWakeup({bool enable = false}) {
+    if (Platform.isIOS) {
+      return;
+    }
+    _channel.invokeMethod('enableAutoWakeup', {'enable': enable});
+  }
+
+  void setAuth({bool enable = true}) {
+    print(flutter_log + "setAuth:");
+    _channel.invokeMethod('setAuth', {'enable': enable});
+  }
+
+  void setLbsEnable({bool enable = true}) {
+    if (Platform.isIOS) {
+      return;
+    }
+    print(flutter_log + "setLbsEnable:");
+    _channel.invokeMethod('setLbsEnable', {'enable': enable});
   }
 
   ///
@@ -54,6 +94,10 @@ class JPush {
     EventHandler? onOpenNotification,
     EventHandler? onReceiveMessage,
     EventHandler? onReceiveNotificationAuthorization,
+    EventHandler? onNotifyMessageUnShow,
+    EventHandler? onConnected,
+    EventHandler? onInAppMessageClick,
+    EventHandler? onInAppMessageShow,
   }) {
     print(flutter_log + "addEventHandler:");
 
@@ -61,6 +105,10 @@ class JPush {
     _onOpenNotification = onOpenNotification;
     _onReceiveMessage = onReceiveMessage;
     _onReceiveNotificationAuthorization = onReceiveNotificationAuthorization;
+    _onNotifyMessageUnShow = onNotifyMessageUnShow;
+    _onConnected = onConnected;
+    _onInAppMessageClick = onInAppMessageClick;
+    _onInAppMessageShow = onInAppMessageShow;
     _channel.setMethodCallHandler(_handleMethod);
   }
 
@@ -77,6 +125,14 @@ class JPush {
       case "onReceiveNotificationAuthorization":
         return _onReceiveNotificationAuthorization!(
             call.arguments.cast<String, dynamic>());
+      case "onNotifyMessageUnShow":
+        return _onNotifyMessageUnShow!(call.arguments.cast<String, dynamic>());
+      case "onConnected":
+        return _onConnected!(call.arguments.cast<String, dynamic>());
+      case "onInAppMessageClick":
+        return _onInAppMessageClick!(call.arguments.cast<String, dynamic>());
+      case "onInAppMessageShow":
+        return _onInAppMessageShow!(call.arguments.cast<String, dynamic>());
       default:
         throw new UnsupportedError("Unrecognized Event");
     }
@@ -90,11 +146,31 @@ class JPush {
       [NotificationSettingsIOS iosSettings = const NotificationSettingsIOS()]) {
     print(flutter_log + "applyPushAuthority:");
 
-    if (!_platform.isIOS) {
+    if (!Platform.isIOS) {
       return;
     }
 
     _channel.invokeMethod('applyPushAuthority', iosSettings.toMap());
+  }
+
+  // iOS Only
+  // 进入页面， pageName：页面名  请与pageLeave配套使用
+  void pageEnterTo(String pageName) {
+    print(flutter_log + "pageEnterTo:" + pageName);
+    if (!Platform.isIOS) {
+      return;
+    }
+    _channel.invokeMethod('pageEnterTo', pageName);
+  }
+
+  // iOS Only
+  // 离开页面，pageName：页面名， 请与pageEnterTo配套使用
+  void pageLeave(String pageName) {
+    print(flutter_log + "pageLeave:" + pageName);
+    if (!Platform.isIOS) {
+      return;
+    }
+    _channel.invokeMethod('pageLeave', pageName);
   }
 
   ///
@@ -172,6 +248,19 @@ class JPush {
   }
 
   ///
+  /// 获取所有当前绑定的 alias
+  ///
+  /// @param {Function} success = ({"alias":String}) => {  }
+  /// @param {Function} fail = ({"errorCode":int}) => {  }
+  ///
+  Future<Map<dynamic, dynamic>> getAlias() async {
+    print(flutter_log + "getAlias:");
+    final Map<dynamic, dynamic> result =
+        await _channel.invokeMethod('getAlias');
+    return result;
+  }
+
+  ///
   /// 重置 alias.
   ///
   /// @param {String} alias
@@ -185,6 +274,11 @@ class JPush {
     final Map<dynamic, dynamic> result =
         await _channel.invokeMethod('setAlias', alias);
     return result;
+  }
+
+  void testCountryCode(String code) {
+    print(flutter_log + "testCountryCode:" + code);
+    _channel.invokeMethod('testCountryCode', code);
   }
 
   ///
@@ -239,6 +333,14 @@ class JPush {
     print(flutter_log + "clearAllNotifications:");
 
     await _channel.invokeMethod('clearAllNotifications');
+  }
+
+  Future clearLocalNotifications() async {
+    if (Platform.isIOS) {
+      return;
+    }
+    print(flutter_log + "clearLocalNotifications:");
+    await _channel.invokeMethod('clearLocalNotifications');
   }
 
   ///
@@ -300,6 +402,13 @@ class JPush {
   /// 调用此 API 跳转至系统设置中应用设置界面
   void openSettingsForNotification() {
     _channel.invokeMethod('openSettingsForNotification');
+  }
+
+  void requestRequiredPermission() {
+    if (Platform.isIOS) {
+      return;
+    }
+    _channel.invokeMethod('requestRequiredPermission');
   }
 }
 

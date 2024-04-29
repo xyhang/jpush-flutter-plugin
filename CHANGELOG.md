@@ -1,3 +1,90 @@
+## 3.0.0
++ 适配flutter3.x, 
++ 升级：升级 iOS SDK JCore4.6.2， JPush 5.2.4
+## 2.5.0
+更新JCore 440 JPush 520
+## 2.4.9
+修复testCountryCode报错问题
+## 2.4.8
+修复不能清理本地通知问题
+## 2.4.7
+开放requestRequiredPermission API 
+## 2.4.6
+开放setChannelAndSound API 
+## 2.4.5
++ 修复：onConnected 崩溃问题
++ 升级：升级 Android+IOS JPush 5.0.4
+       升级 Android+IOS JCore 4.2.4
++ 新增：setLbsEnable API   
+## 2.4.4
++ 修复：优化代码结构
+## 2.4.3
++ 升级：升级 Android+IOS JPush 5.0.0
+       升级 Android+IOS JCore 4.2.0
+ + 新增：enableAutoWakeup API
+## 2.4.2 
+开放 onConnected 回调
+## 2.4.1
++ 升级：升级 Android JPush 4.9.0
+       升级 Android JCore 4.1.0
+## 2.4.0
++ 升级：升级 Android JPush 4.8.4
+## 2.3.9
++ 升级：升级 Android JPush 4.8.3
+       升级 Android JCore 3.3.6
+## 2.3.8
++ 新增：testCountryCode API
+## 2.3.7
++ 升级：升级 Android JPush 4.8.1
+       升级 Android JCore 3.3.2
+       升级 IOS JPush 4.8.1
+       升级 IOS JCore 3.2.5
+## 2.3.6
++ 新增：修复崩溃问题
+## 2.3.5
++ 新增：iOS新增getAlias接口实现
+## 2.3.4
++ 升级：升级 Android JPush 4.7.2
+       升级 Android JCore 3.3.0
+## 2.3.3
++ 升级：升级 Android JPush 4.7.0
+## 2.3.2
++ 新增：修复setAuth()方法问题
+## 2.3.1
++ 新增：iOS对外暴露setAuth()方法
+## 2.3.0
++ 新增：对外暴露setAuth()方法
+  修复：点开通知会默认跳转到主页问题
+## 2.2.9
++ 升级：升级 Android JPush 4.6.6
+## 2.2.8
++ 升级：使用g版本
+## 2.2.7
++ 升级：升级 Android JCore 3.2.4
+## 2.2.6
++ 修复：自定义消息解析崩溃问题
+## 2.2.5
++ 升级：jpsuh 4.6.4 jcore 3.2.2
+## 2.2.4
++ 修复：iOS点击通知冷启动app，不回调onOpenNotification问题
+## 2.2.3
++ 升级：jpsuh 4.6.0
+## 2.2.2
++ 新增：getAlias接口
+## 2.2.1
++ 升级：iOS：jpush3.7.0->jpus4.4.0
+## 2.2.0
++ 修复channel为null时,异常崩溃问题
+## 2.1.9
++ 升级：新增onNotifyMessageUnShow方法
+## 2.1.8
++ 升级： jpush 4.4.5
+## 2.1.7
++ 升级： jcore 3.1.0
+## 2.1.6
++ 升级：升级 android push 4.4.0 jcore 3.0.0
+## 2.1.5
++ 升级：升级 android push 4.2.8 jcore 2.9.0，ios push 3.7.0，jcore 2.7.1。
 ## 2.1.4
 + 新增：Android push 新增 setWakeEnable 接口
 ## 2.1.2

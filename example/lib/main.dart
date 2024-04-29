@@ -48,11 +48,32 @@ class _MyAppState extends State<MyApp> {
         setState(() {
           debugLable = "flutter onReceiveNotificationAuthorization: $message";
         });
+      }, onNotifyMessageUnShow: (Map<String, dynamic> message) async {
+        print("flutter onNotifyMessageUnShow: $message");
+        setState(() {
+          debugLable = "flutter onNotifyMessageUnShow: $message";
+        });
+      }, onInAppMessageShow: (Map<String, dynamic> message) async {
+        print("flutter onInAppMessageShow: $message");
+        setState(() {
+          debugLable = "flutter onInAppMessageShow: $message";
+        });
+      }, onInAppMessageClick: (Map<String, dynamic> message) async {
+        print("flutter onInAppMessageClick: $message");
+        setState(() {
+          debugLable = "flutter onInAppMessageClick: $message";
+        });
+      }, onConnected: (Map<String, dynamic> message) async {
+        print("flutter onConnected: $message");
+        setState(() {
+          debugLable = "flutter onConnected: $message";
+        });
       });
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
 
+    jpush.setAuth(enable: true);
     jpush.setup(
       appKey: "xxxxx", //你自己应用的 AppKey
       channel: "theChannel",
@@ -69,6 +90,9 @@ class _MyAppState extends State<MyApp> {
         debugLable = "flutter getRegistrationID: $rid";
       });
     });
+
+    // iOS要是使用应用内消息，请在页面进入离开的时候配置pageEnterTo 和  pageLeave 函数，参数为页面名。
+    jpush.pageEnterTo("HomePage"); // 在离开页面的时候请调用 jpush.pageLeave("HomePage");
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -253,6 +277,20 @@ class _MyAppState extends State<MyApp> {
                         });
                       });
                     }),
+                new Text(" "),
+                new CustomButton(
+                    title: "getAlias",
+                    onPressed: () {
+                      jpush.getAlias().then((map) {
+                        setState(() {
+                          debugLable = "getAlias success: $map";
+                        });
+                      }).catchError((error) {
+                        setState(() {
+                          debugLable = "getAlias error: $error";
+                        });
+                      });
+                    }),
               ]),
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -339,10 +377,12 @@ class CustomButton extends StatelessWidget {
     return new TextButton(
       onPressed: onPressed,
       child: new Text("$title"),
-      style: new ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.white),
+      style: new ButtonStyle(
+        foregroundColor: MaterialStateProperty.all(Colors.white),
         overlayColor: MaterialStateProperty.all(Color(0xff888888)),
         backgroundColor: MaterialStateProperty.all(Color(0xff585858)),
-        padding: MaterialStateProperty.all(EdgeInsets.fromLTRB(10, 5, 10, 5)), ),
+        padding: MaterialStateProperty.all(EdgeInsets.fromLTRB(10, 5, 10, 5)),
+      ),
     );
   }
 }
